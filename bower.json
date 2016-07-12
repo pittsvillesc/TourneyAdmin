@@ -1,0 +1,19 @@
+{
+  "name": "TourneyAdmin",
+  "main": "index.html",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.4.0",
+    "neon-animation": "PolymerElements/neon-animation#^1.2.3",
+    "paper-card": "PolymerElements/paper-card#^1.1.1",
+    "paper-item": "PolymerElements/paper-item#^1.2.1",
+    "firebase-element": "GoogleWebComponents/firebase-element#^1.0.15",
+    "polymerfire": "firebase/polymerfire#^0.9.4",
+    "moment": "^2.14.1"
+  },
+  "devDependencies": {
+    "iron-component-page": "PolymerElements/iron-component-page#^1.0.0",
+    "iron-demo-helpers": "PolymerElements/iron-demo-helpers#^1.0.0",
+    "web-component-tester": "^4.0.0",
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "TourneyAdmin",
+  "short_name": "TourneyAdmin",
+  "start_url": "/",
+  "display": "standalone"
+}

@@ -1,0 +1,115 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/neon-animation/neon-animation.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<link rel="import" href="menu-item.html">
+<dom-module id="menu-grid">
+    <template>
+        <style>
+            :host {
+                @apply(--layout-vertical);
+            }
+            .main {
+                @apply(--layout-flex);
+                @apply(--layout-scroll);
+            }
+        </style>       
+        <style is="custom-style">
+            .largeIcon {
+                --iron-icon-height: 64px;
+                --iron-icon-width: 64px;
+            }
+                   
+            .menuLayout {
+                @apply(--layout-horizontal);
+                @apply(--layout-wrap);
+                max-width: 480px;;
+            }
+            .container {
+                @apply(--layout-horizontal);
+                @apply(--layout-center-justified);
+            }
+            iron-icon {
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        </style>
+        <!--<style include="iron-flex iron-flex-alignment"></style>-->
+        <paper-toolbar class="medium-tall">
+            <paper-icon-button id="button" icon="arrow-back"></paper-icon-button>
+            <div class="title">Tournament Admin Dashboard</div>
+        </paper-toolbar>
+        <div id="main" class="container">
+            <div class="menuLayout">
+                <template is="dom-repeat" items="[[data]]">
+                    <menu-item
+                        id="menuItem[[item.id]]"
+                        item-data="[[item]]"></menu-item>
+<!--                    <paper-card
+                        id="menuItem[[item.id]]"
+                        class="menuCard"
+                        heading="[[item.title]]">
+                        <iron-icon class="largeIcon" icon="[[item.image]]"></iron-icon>
+                    </paper-card>-->
+                </template>
+            </div>
+        </div>
+
+
+    </template>
+    <script>
+        Polymer({
+            is : 'menu-grid',
+            behaviors : [
+                Polymer.NeonAnimatableBehavior
+            ],
+            listeners : {
+                "click" : "_onClick"
+            },
+            properties : {
+                data : {
+                    type : Array,
+                    value : function() {
+                        return [];
+                    }
+                },
+                animationConfig : {
+                    type : Object,
+                    value : function() {
+                        return {
+                            "entry" : [{
+                                    name : "fade-in-animation",
+                                    node : this.$.button
+                                }],
+                            "exit" : [{
+                                    name : "fade-out-animation",
+                                    node : this.$.button
+                                },
+                                {
+                                    name : "hero-animation",
+                                    node : this.$.button
+                                }]
+                        }
+                    }
+                }
+            },
+            _onClick : function( event ) {
+                var target = event.target;
+                console.log(target);
+                while(target !== this && !target._templateInstance) {
+                    target = target.parentNode;
+                }
+                // configure the page animation
+                this.sharedElements = {
+                    'hero' : target,
+                };
+                this.fire('item-click', {
+                    item : target,
+                });
+            }
+        });
+    </script>
+</dom-module>

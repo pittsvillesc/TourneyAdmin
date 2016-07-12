@@ -1,0 +1,95 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="../../bower_components/paper-card/paper-card.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
+<dom-module id="menu-item">
+    <template>
+        <style>
+            :host {
+                @apply(--layout-vertical);
+            }
+            
+        </style>       
+        <style is="custom-style">
+            .largeIcon {
+                --iron-icon-height: 64px;
+                --iron-icon-width: 64px;
+            }
+            .menuCard {
+                height: 180px;
+                width: 180px;
+                margin: 7px;
+                --paper-card-header: @apply(--layout-center-justified);
+
+            }            
+            .menuLayout {
+                @apply(--layout-horizontal);
+                @apply(--layout-wrap);
+                max-width: 480px;;
+            }
+            .container {
+                @apply(--layout-horizontal);
+                @apply(--layout-center-justified);
+            }
+            iron-icon {
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        </style>
+
+        <paper-card
+            id="menuItem[[itemData.id]]"
+            class="menuCard"
+            heading="[[itemData.title]]">
+            <iron-icon class="largeIcon" icon="[[itemData.image]]"></iron-icon>
+        </paper-card>
+    </template>
+
+    <script>
+        Polymer({
+            is : 'menu-item',
+            properties : {
+                itemData : {
+                    id: "",
+                    title: "",
+                    image: ""
+                },
+                animationConfig : {
+                    type : Object,
+                    value : function() {
+                        return {
+                            "entry" : [{
+                                    name : "fade-in-animation",
+                                    node : this.$.button
+                                }],
+                            "exit" : [{
+                                    name : "fade-out-animation",
+                                    node : this.$.button
+                                },
+                                {
+                                    name : "hero-animation",
+                                    node : this.$.button
+                                }]
+                        }
+                    }
+                }
+            },
+            _onClick : function( event ) {
+                var target = event.target;
+                console.log(target);
+                while(target !== this && !target._templateInstance) {
+                    target = target.parentNode;
+                }
+                // configure the page animation
+                this.sharedElements = {
+                    'hero' : target,
+                };
+                this.fire('item-click', {
+                    item : target,
+                });
+            }
+        });
+    </script>
+</dom-module>

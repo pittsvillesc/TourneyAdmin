@@ -1,0 +1,93 @@
+<link rel="import" href="../../bower_components/polymer/polymer.html">
+<link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../../bower_components/polymerfire/firebase-query.html">
+<dom-module id="team-registrations">
+    <template>
+        <style>
+            :host {
+                position: absolute;
+            }
+
+        </style>
+
+        <firebase-query
+            id="regQuery"
+            path="/registrations"
+            data="{{data}}"></firebase-query>
+        <table>
+            <template is="dom-repeat" items="{{data}}" as="reg">
+
+                <tr>
+                    <td>{{reg.teamName}}</td>
+                    <td>{{computeAverageAge(reg.players)}}</td>
+                    <td>{{computeAverageSkill(reg.players)}}</td>
+                </tr>
+            </template>
+        </table>
+    </template>
+</dom-module>
+<script>
+
+//    var config = {
+//        apiKey : "AIzaSyC6Nx9oieHL4Gt3ZypeOP7fdry1jMnIGGs",
+//        authDomain : "soccertourney2016.firebaseapp.com",
+//        databaseURL : "https://soccertourney2016.firebaseio.com",
+//        storageBucket : "soccertourney2016.appspot.com",
+//    };
+//    firebase.initializeApp(config);
+//    var database = firebase.database();
+</script>
+<script>
+    Polymer({
+        is : "team-registrations",
+        properties : {
+            data : {
+                type : Object
+
+            }
+        },
+        computeAverageAge : function( players ) {
+            var nbrPlayers = 0;
+            var totalMills = 0;
+            var avgUTC = 0;
+            var avgAge = moment();
+            var today = moment();
+            var _computeAge = function( player, idx ) {
+                if (player.birthdate !== "") {
+                    var playerDOB = moment(player.birthdate, "YYYY-MM-DD");
+                    if (!playerDOB.isValid()) {
+                        playerDOB = moment(player.birthdate, "MM-DD-YYYY");
+                    }
+                    if (!playerDOB.isValid()) {
+                        playerDOB = moment(player.birthdate, "M-DD-YYYY");
+                    }
+                    if (playerDOB.isValid()) {
+                        nbrPlayers += 1;
+                        totalMills += playerDOB.valueOf();
+                    }
+                }
+                avgUTC = totalMills / nbrPlayers;
+                avgAge = moment(parseInt(avgUTC.toFixed()));
+//                console.log(avgUTC);
+//                console.log(avgAge.format("MM-DD-YYYY"));
+            }
+            players.forEach(_computeAge);                       
+            return today.diff(avgAge, "years", true).toFixed(2);
+        },
+        computeAverageSkill: function(players) {
+            var nbrPlayers = 0;
+            var totSkillPts = 0;
+            var avgSkill = 0.0;
+            var _computeSkill = function(player, idx) {
+                if (player.birthdate !== "") {
+                    nbrPlayers += 1;
+                    totSkillPts += parseInt(player.experience);
+                    avgSkill = totSkillPts / nbrPlayers;
+                }
+            }
+            players.forEach(_computeSkill);
+            return avgSkill.toFixed(2);
+        }
+
+    });
+</script>
