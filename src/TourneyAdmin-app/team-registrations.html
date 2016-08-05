@@ -21,6 +21,9 @@
                     <td>{{reg.teamName}}</td>
                     <td>{{computeAverageAge(reg.players)}}</td>
                     <td>{{computeAverageSkill(reg.players)}}</td>
+                    <td>{{computeCoef(reg.players)}}</td>
+                    <td>{{computePts(reg.players)}}</td>
+                    <td>{{minAge(reg.players)}} - {{maxAge(reg.players)}}</td>
                 </tr>
             </template>
         </table>
@@ -39,20 +42,20 @@
 </script>
 <script>
     Polymer({
-        is : "team-registrations",
-        properties : {
-            data : {
-                type : Object
+        is: "team-registrations",
+        properties: {
+            data: {
+                type: Object
 
             }
         },
-        computeAverageAge : function( players ) {
+        computeAverageAge: function (players) {
             var nbrPlayers = 0;
             var totalMills = 0;
             var avgUTC = 0;
             var avgAge = moment();
             var today = moment();
-            var _computeAge = function( player, idx ) {
+            var _computeAge = function (player, idx) {
                 if (player.birthdate !== "") {
                     var playerDOB = moment(player.birthdate, "YYYY-MM-DD");
                     if (!playerDOB.isValid()) {
@@ -71,14 +74,14 @@
 //                console.log(avgUTC);
 //                console.log(avgAge.format("MM-DD-YYYY"));
             }
-            players.forEach(_computeAge);                       
+            players.forEach(_computeAge);
             return today.diff(avgAge, "years", true).toFixed(2);
         },
-        computeAverageSkill: function(players) {
+        computeAverageSkill: function (players) {
             var nbrPlayers = 0;
             var totSkillPts = 0;
             var avgSkill = 0.0;
-            var _computeSkill = function(player, idx) {
+            var _computeSkill = function (player, idx) {
                 if (player.birthdate !== "") {
                     nbrPlayers += 1;
                     totSkillPts += parseInt(player.experience);
@@ -87,7 +90,187 @@
             }
             players.forEach(_computeSkill);
             return avgSkill.toFixed(2);
+        },
+        computeCoef: function (players) {
+            var nbrPlayers = 0;
+            var totalPts = 0;
+            var _computePoints = function (player, idx) {
+
+//                var totalPts = 0.0;
+                if (player.birthdate !== "") {
+
+                    var today = moment();
+                    var totalMills = 0;
+                    var playerAge = 0.0;
+                    var extraPts = 0.0;
+                    var playerDOB = moment(player.birthdate, "YYYY-MM-DD");
+                    if (!playerDOB.isValid()) {
+                        playerDOB = moment(player.birthdate, "MM-DD-YYYY");
+                    }
+                    if (!playerDOB.isValid()) {
+                        playerDOB = moment(player.birthdate, "M-DD-YYYY");
+                    }
+                    if (playerDOB.isValid()) {
+                        nbrPlayers += 1;
+                        totalMills += playerDOB.valueOf();
+                        playerAge = today.diff(totalMills, "years", true).toFixed(2);
+                        if (playerAge > 18.5 && playerAge <= 35.0) {
+                            playerAge = 18.5;
+                        } else if (playerAge > 35.0) {
+                            playerAge = 18.5 - (.25 * (playerAge - 35.0));
+                        }
+//                        playerAge = playerAge.toFixed(2);
+                    }
+                    if (player.gender === "female" || player.gender === "f") {
+                        switch (player.experience) {
+                            case "0":
+                                extraPts = 0;
+                                break;
+                            case "1":
+                                extraPts = 0.25;
+                                break;
+                            case "2":
+                                extraPts = 2.75;
+                                break;
+                            case "3":
+                                extraPts = 3.25;
+                                break;
+                            case "4":
+                                extraPts = 4.5;
+                        }
+                    } else {
+                        switch (player.experience) {
+                            case "0":
+                                extraPts = 0.5;
+                                break;
+                            case "1":
+                                extraPts = 2.25;
+                                break;
+                            case "2":
+                                extraPts = 4.25;
+                                break;
+                            case "3":
+                                extraPts = 5.5;
+                                break;
+                            case "4":
+                                extraPts = 6.25;
+                        }
+                    }
+                    var tempPoints = (playerAge - 7.34) + extraPts;
+                    totalPts += tempPoints;
+                }
+            }
+            players.forEach(_computePoints);
+            var vReturn = ((totalPts / nbrPlayers) * 3)
+            return vReturn.toFixed(2);
+        },
+        computePts: function (players) {
+            var nbrPlayers = 0;
+            var totalPts = 0;
+            var _getPts = function (player, idx) {
+                if (player.birthdate !== "") {
+                    nbrPlayers += 1;
+                    var extraPts = 0.0;
+                    if (player.gender === "female" || player.gender === "f") {
+                        switch (player.experience) {
+                            case "0":
+                                extraPts = 0;
+                                break;
+                            case "1":
+                                extraPts = 0.25;
+                                break;
+                            case "2":
+                                extraPts = 2.75;
+                                break;
+                            case "3":
+                                extraPts = 3.25;
+                                break;
+                            case "4":
+                                extraPts = 4.5;
+                        }
+                    } else {
+                        switch (player.experience) {
+                            case "0":
+                                extraPts = 0.5;
+                                break;
+                            case "1":
+                                extraPts = 2.25;
+                                break;
+                            case "2":
+                                extraPts = 4.25;
+                                break;
+                            case "3":
+                                extraPts = 5.5;
+                                break;
+                            case "4":
+                                extraPts = 6.25;
+                        }
+                    }
+                    totalPts += extraPts;
+                }
+
+            }
+            players.forEach(_getPts);
+            var vReturn = ((totalPts / nbrPlayers) * 3);
+            return vReturn.toFixed(2);
+//            return totalPts;
+        },
+        maxAge: function (players) {
+            var ageArray = [];
+
+            players.forEach(function (player, i) {
+                var today = moment();
+                if (player.birthdate !== "") {
+                    var playerDOB = moment(player.birthdate, "YYYY-MM-DD");
+                    if (!playerDOB.isValid()) {
+                        playerDOB = moment(player.birthdate, "MM-DD-YYYY");
+                    }
+                    if (!playerDOB.isValid()) {
+                        playerDOB = moment(player.birthdate, "M-DD-YYYY");
+                    }
+                    if (playerDOB.isValid()) {
+//                        nbrPlayers += 1;
+//                        totalMills += playerDOB.valueOf();
+                    }
+                    ageArray.push(today.diff(playerDOB.valueOf(), "years", true).toFixed(2));
+                }
+            });
+//            console.log(ageArray);
+            ageArray = ageArray.sort(function(a,b) {return parseFloat(a)>parseFloat(b)});
+//            var dummy = ageArray.pop();
+            var age = parseFloat(ageArray.pop());
+            var vReturn = age + (age * .1);
+            return vReturn.toFixed(2);
+        },
+        
+        minAge: function (players) {
+            var ageArray = [];
+
+            players.forEach(function (player, i) {
+                var today = moment();
+                if (player.birthdate !== "") {
+                    var playerDOB = moment(player.birthdate, "YYYY-MM-DD");
+                    if (!playerDOB.isValid()) {
+                        playerDOB = moment(player.birthdate, "MM-DD-YYYY");
+                    }
+                    if (!playerDOB.isValid()) {
+                        playerDOB = moment(player.birthdate, "M-DD-YYYY");
+                    }
+                    if (playerDOB.isValid()) {
+//                        nbrPlayers += 1;
+//                        totalMills += playerDOB.valueOf();
+                    }
+                    ageArray.push(today.diff(playerDOB.valueOf(), "years", true).toFixed(2));
+                }
+            });
+//            console.log(ageArray);
+            ageArray = ageArray.sort(function(a,b) {return parseFloat(a)>parseFloat(b)});
+//            var dummy = ageArray.shift();
+            var age = parseFloat(ageArray.shift());
+            var vReturn = age - (age * .1);
+            return vReturn.toFixed(2);
         }
+
 
     });
 </script>
